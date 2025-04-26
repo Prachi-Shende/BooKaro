@@ -1,29 +1,203 @@
-/* App.css */
-body {
+/* Base styles */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --primary-color: #E7BC91;
+  --primary-color-light: rgba(231, 188, 145, 0.1);
+  --primary-color-medium: rgba(231, 188, 145, 0.2);
+  --text-color: #333333;
+  --text-light: #666666;
+  --background-light: #f9f9f9;
+  --background-white: #ffffff;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+* {
   margin: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f5f5f5;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.App {
-  text-align: center;
-  padding: 2rem;
+body {
+  font-family: 'Poppins', sans-serif;
+  color: var(--text-color);
+  line-height: 1.6;
 }
 
-h1 {
-  color: #333;
+/* Custom button styles */
+.btn-primary {
+  background-color: var(--primary-color);
+  color: #000;
+  transition: all 0.3s ease;
 }
 
-button {
-  padding: 10px 20px;
-  background-color: #007bff;
-  border: none;
-  border-radius: 5px;
+.btn-primary:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
+.btn-outline {
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
+  transition: all 0.3s ease;
+}
+
+.btn-outline:hover {
+  background-color: var(--primary-color);
+  color: #fff;
+}
+
+/* Custom animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease;
+}
+
+/* Additional custom styles for components */
+.book-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.book-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px var(--shadow-color);
+}
+
+.feature-icon {
+  transition: all 0.3s ease;
+}
+
+.feature-card:hover .feature-icon {
+  transform: scale(1.1);
+}
+
+/* Form styles */
+input:focus, textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+/* Mobile menu animation */
+.mobile-menu {
+  transition: max-height 0.3s ease;
+  overflow: hidden;
+}
+
+/* Hero section image overlay */
+.hero-overlay {
+  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7));
+}
+
+/* Product badge */
+.badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: var(--primary-color);
   color: white;
-  font-size: 16px;
-  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: bold;
+  border-radius: 4px;
 }
 
-button:hover {
-  background-color: #0056b3;
+/* Reviews section */
+.review-card {
+  transition: all 0.3s ease;
+}
+
+.review-card:hover {
+  border-left-width: 6px;
+}
+
+/* Star rating */
+.star-rating {
+  color: var(--primary-color);
+  letter-spacing: 2px;
+}
+
+/* Footer social icons */
+.social-icon {
+  transition: all 0.3s ease;
+}
+
+.social-icon:hover {
+  transform: translateY(-3px);
+  color: var(--primary-color);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .hero-section h1 {
+    font-size: 2rem;
+  }
+  
+  .section-title {
+    font-size: 1.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-section h1 {
+    font-size: 1.8rem;
+  }
+  
+  .section-title {
+    font-size: 1.5rem;
+  }
+}
+
+/* Loading spinner */
+.spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-left-color: var(--primary-color);
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Utility classes */
+.text-primary {
+  color: var(--primary-color);
+}
+
+.bg-primary {
+  background-color: var(--primary-color);
+}
+
+.bg-primary-light {
+  background-color: var(--primary-color-light);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #d5aa80;
 }

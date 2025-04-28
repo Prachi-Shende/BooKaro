@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingBag, Trash2, Calendar, Clock, Truck, CreditCard, Gift, ChevronRight, Info, AlertCircle } from 'lucide-react';
 import './ViewCart.css';
+import { db } from '../firebase/db';  // adjust according to your Firebase setup
+import { collection, doc, getDoc } from 'firebase/firestore';
+
 
 const ViewCart = () => {
   const navigate = useNavigate();

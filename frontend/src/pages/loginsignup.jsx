@@ -1,9 +1,18 @@
+// src/pages/loginSignup.jsx
 import React, { useState, useEffect } from 'react';
+import { auth } from '../firebase/auth';  // Import auth (Firebase Authentication)
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { signOut } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore'; 
+import { db } from '../firebase/db';  // Import Firestore (db)
+
+
 //import 'bootstrap/dist/css/bootstrap.min.css';
 
 const LoginSignupPopup = ({ isOpen, onClose }) => {
   // State management
   const [isLogin, setIsLogin] = useState(true);
+  
   const [formData, setFormData] = useState({
     email: '',
     firstName: '',
@@ -256,42 +265,53 @@ const LoginSignupPopup = ({ isOpen, onClose }) => {
       onClose(); // Use the provided onClose prop
     }
   };
+  
+const handleLogout = async () => {
+  try {
+    await signOut(auth);
+    alert('Logged out successfully!');
+    // Optional: Clear any local storage or redirect to login page if needed
+  } catch (error) {
+    console.error('Error logging out:', error);
+    alert('Logout failed. Please try again.');
+  }
+};
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+  
     if (!validateForm()) return;
-
+  
     setIsLoading(true);
-
+  
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Check for VJTI email
-      const vjtiCheck = formData.email.endsWith('@vjti.ac.in');
-      setIsVJTI(vjtiCheck);
-      
-      console.log(isLogin ? 'Login submitted' : 'Signup submitted', {
-        ...formData,
-        isVJTI: vjtiCheck
-      });
-      
-      // For login, just close the modal after success
       if (isLogin) {
+        // Login
+        await signInWithEmailAndPassword(auth, formData.email, formData.password);
         alert('Login successful!');
         onClose();
       } else {
-        // For signup, show role selection
-        promptForRole();
+        // Signup
+        const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+        const user = userCredential.user;
+  
+        // Save only Name and Email
+        await setDoc(doc(db, 'users', user.uid), {
+          name: `${formData.firstName} ${formData.lastName}`,
+          email: formData.email,
+        });
+  
+        alert('Signup successful!');
+        onClose();
       }
     } catch (error) {
-      console.error('Error:', error);
-      alert('An error occurred. Please try again.');
+      console.error('Error during login/signup:', error);
+      alert(error.message);
     } finally {
       setIsLoading(false);
     }
   };
+    
 
   // Password strength indicator
   const renderPasswordStrength = () => {

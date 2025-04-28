@@ -1,0 +1,13 @@
+train: D:\NEWtamper\train
+val: D:\NEWtamper\valid
+test: D:\NEWtamper\test
+
+nc: 2
+names: ['Ripped', 'Wornout']
+
+roboflow:
+  workspace: atcom21-gmail-com
+  project: damaged-books
+  version: 2
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/atcom21-gmail-com/damaged-books/dataset/2

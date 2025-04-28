@@ -1,30 +1,67 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, User, ShoppingCart, MessageSquare, Menu, X } from 'lucide-react';
 import Header from '../components/header';
 import Footer from '../components/footer';
 import vjtiLibrary from './vjtilibrary.webp';
+import { getFirestore, collection, getDocs, doc, setDoc, getDoc, updateDoc, arrayUnion } from 'firebase/firestore';
+import { db } from '../firebase/db';
+import { getAuth } from "firebase/auth";
 
 const BooKaroHomepage = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [books, setBooks] = useState([]);
 
-  const recommendedBooks = [
-    { id: 1, title: "Engineering Mathematics Vol 1", author: "H.K. Dass", price: 450 },
-    { id: 2, title: "Data Structures Using C", author: "Reema Thareja", price: 380 },
-    { id: 3, title: "Computer Networks", author: "Andrew S. Tanenbaum", price: 650 },
-    { id: 4, title: "Design Patterns", author: "Erich Gamma et al", price: 550 },
-    { id: 5, title: "Digital Logic Design", author: "Morris Mano", price: 420 },
-    { id: 6, title: "Analog Electronics", author: "Robert Boylestad", price: 390 },
-    { id: 7, title: "Operating System Concepts", author: "Silberschatz, Galvin", price: 580 },
-    { id: 8, title: "Database Management Systems", author: "Raghu Ramakrishnan", price: 490 },
-    { id: 9, title: "Discrete Mathematics", author: "Kenneth Rosen", price: 430 },
-    { id: 10, title: "Computer Organization", author: "Carl Hamacher", price: 520 },
-    { id: 11, title: "Calculus: Early Transcendentals", author: "James Stewart", price: 610 },
-    { id: 12, title: "Physics for Engineers", author: "Giancoli", price: 570 },
-    ];
+  const dummyBooks = [
+    { id: 1, bookTitle: "Engineering Mathematics Vol 1", author: "H.K. Dass", price: 450 },
+    { id: 2, bookTitle: "Data Structures Using C", author: "Reema Thareja", price: 380 },
+    { id: 3, bookTitle: "Computer Networks", author: "Andrew S. Tanenbaum", price: 650 },
+  ];
 
+  useEffect(() => {
+    
+    const fetchBooks = async () => {
+      const querySnapshot = await getDocs(collection(db, "books"));
+      const booksList = querySnapshot.docs.map(doc => doc.data());
+      setBooks(prevBooks => [...dummyBooks, ...booksList]); // Combine dummy data with Firestore data
+    };
+
+    fetchBooks();
+  }, []);
   
+  const addToCart = async (book) => {
+    try {
+      const auth = getAuth();  // Get the Firebase authentication object
+      const user = auth.currentUser;  // Get the currently authenticated user
+      
+      if (!user) {
+        throw new Error('You need to be logged in to add items to the cart');
+      }
+  
+      const db = getFirestore();  // Get the Firestore instance
+      const cartRef = doc(db, 'carts', user.uid);  // Reference to the user's cart document
+      
+      const cartDoc = await getDoc(cartRef);  // Get the current cart document
+      
+      if (cartDoc.exists()) {
+        // If the cart exists, update it
+        await updateDoc(cartRef, {
+          items: arrayUnion(book),
+        });
+      } else {
+        // If the cart doesn't exist, create a new one
+        await setDoc(cartRef, {
+          items: [book],
+        });
+      }
+  
+      console.log('Item added to cart');
+    } catch (error) {
+      console.error('Error adding to cart: ', error);
+    }
+  };  
+
   return (
     <div className="app-container">
       {/* Navigation Bar */}
@@ -32,17 +69,17 @@ const BooKaroHomepage = () => {
 
       {/* Hero Section */}
       <div className="hero-section" style={{ backgroundImage: `url(${vjtiLibrary})` }}>
-  <div className="hero-overlay">
-    <h1 className="hero-title">Book Shopping Made Easy</h1>
-    <p className="hero-description">
-      Welcome to BooKaro, your go-to platform for buying, selling, and renting books. 
-      Connect with VJTI students to discover a wide range of books for your academic needs.
-    </p>
-    <button className="hero-button">
-      Explore
-    </button>
-  </div>
-</div>
+        <div className="hero-overlay">
+          <h1 className="hero-title">Book Shopping Made Easy</h1>
+          <p className="hero-description">
+            Welcome to BooKaro, your go-to platform for buying, selling, and renting books.
+            Connect with VJTI students to discover a wide range of books for your academic needs.
+          </p>
+          <button className="hero-button">
+            Explore
+          </button>
+        </div>
+      </div>
 
       {/* Recommended Books Section */}
       <section className="recommended-section">
@@ -51,31 +88,40 @@ const BooKaroHomepage = () => {
           <p className="section-description">
             Discover the most popular engineering textbooks among VJTI students
           </p>
-          
+
           <div className="recommended-books-carousel">
             <div className="recommended-books-grid">
-              {recommendedBooks.map(book => (
-                <div key={book.id} className="book-card">
+              {books.length > 0 ? books.map((book, index) => (
+                <div key={index} className="book-card">
                   <div className="book-image">
-                    {/* Placeholder for book cover */}
                     <div className="book-cover-placeholder">
-                      <span>{book.title.split(' ').map(word => word[0]).join('')}</span>
+                      <span>
+                        {book.bookTitle ? book.bookTitle.split(' ').map(word => word[0]).join('') : 'No Title'}
+                      </span>
                     </div>
                   </div>
+
                   <div className="book-details">
-                    <h3 className="book-title">{book.title}</h3>
+                    <h3 className="book-title">{book.bookTitle}</h3>
                     <p className="book-author">by {book.author}</p>
-                    <p className="book-price">₹{book.price}.00</p>
+                    <p className="book-price">₹{book.price}</p>
                     <div className="book-actions">
-                      <button className="book-cart-button">Add to Cart</button>
+                      <button 
+                        className="book-cart-button" 
+                        onClick={() => addToCart(book)}
+                      >
+                        Add to Cart
+                      </button>
                       <button className="book-wishlist-button">♡</button>
                     </div>
                   </div>
                 </div>
-              ))}
+              )) : (
+                <p>Loading books...</p>
+              )}
             </div>
           </div>
-          
+
           <div className="browse-more-container">
             <button className="browse-more-button">
               Browse All Books
@@ -83,8 +129,6 @@ const BooKaroHomepage = () => {
           </div>
         </div>
       </section>
-
-      
 
       {/* Key Offerings Section */}
       <section className="offerings-section">
@@ -103,7 +147,7 @@ const BooKaroHomepage = () => {
                 Engage in direct conversations with sellers or buyers to negotiate prices and finalize transactions smoothly.
               </p>
             </div>
-            
+
             {/* Feature 2 */}
             <div className="feature-card">
               <div className="feature-icon-container">
@@ -116,7 +160,7 @@ const BooKaroHomepage = () => {
                 Easily search and filter books based on titles, ISBN, stream, and VJTI curriculum. Get exactly what you are looking for.
               </p>
             </div>
-            
+
             {/* Feature 3 */}
             <div className="feature-card">
               <div className="feature-icon-container">
@@ -135,7 +179,7 @@ const BooKaroHomepage = () => {
         </div>
       </section>
 
-      {/* Products Section */}
+      {/* Featured Books Section (Products Section) */}
       <section className="products-section">
         <div className="products-container">
           <h2 className="section-title">Featured Books</h2>
@@ -156,7 +200,7 @@ const BooKaroHomepage = () => {
                 </button>
               </div>
             </div>
-            
+
             {/* Product 2 */}
             <div className="product-card">
               <div className="product-image"></div>
@@ -169,7 +213,7 @@ const BooKaroHomepage = () => {
                 </button>
               </div>
             </div>
-            
+
             {/* Product 3 */}
             <div className="product-card">
               <div className="product-image"></div>
@@ -183,7 +227,7 @@ const BooKaroHomepage = () => {
               </div>
             </div>
           </div>
-          
+
           <div className="load-more-container">
             <button className="load-more-button">
               Load More
@@ -212,7 +256,7 @@ const BooKaroHomepage = () => {
                 ★★★★★
               </div>
             </div>
-            
+
             {/* Review 2 */}
             <div className="review-card">
               <div className="reviewer-info">
@@ -228,7 +272,7 @@ const BooKaroHomepage = () => {
                 ★★★★★
               </div>
             </div>
-            
+
             {/* Review 3 */}
             <div className="review-card">
               <div className="reviewer-info">
@@ -253,58 +297,58 @@ const BooKaroHomepage = () => {
         <div className="contact-container">
           <h2 className="section-title">Get in Touch Today</h2>
           <p className="contact-description">Have a question or feedback? Reach out to us for assistance.</p>
-          
+
           <div className="contact-form-container">
             <h3 className="form-title">Contact us</h3>
-            
+
             <form className="contact-form">
               <div className="form-group">
                 <label className="form-label">First name</label>
-                <input 
-                  type="text" 
-                  placeholder="First name" 
+                <input
+                  type="text"
+                  placeholder="First name"
                   className="form-input"
                 />
               </div>
-              
+
               <div className="form-group">
                 <label className="form-label">Last name</label>
-                <input 
-                  type="text" 
-                  placeholder="Last name" 
+                <input
+                  type="text"
+                  placeholder="Last name"
                   className="form-input"
                 />
               </div>
-              
+
               <div className="form-group">
                 <label className="form-label">Email *</label>
-                <input 
-                  type="email" 
-                  placeholder="Email" 
+                <input
+                  type="email"
+                  placeholder="Email"
                   className="form-input"
                   required
                 />
               </div>
-              
+
               <div className="form-group">
                 <label className="form-label">Phone</label>
-                <input 
-                  type="tel" 
-                  placeholder="Phone" 
+                <input
+                  type="tel"
+                  placeholder="Phone"
                   className="form-input"
                 />
               </div>
-              
+
               <div className="form-group-full">
                 <label className="form-label">Message *</label>
-                <textarea 
-                  placeholder="Message" 
+                <textarea
+                  placeholder="Message"
                   className="form-textarea"
                   rows="4"
                   required
                 ></textarea>
               </div>
-              
+
               <div className="form-group-full">
                 <button type="submit" className="submit-button">
                   Submit
@@ -315,11 +359,11 @@ const BooKaroHomepage = () => {
         </div>
       </section>
 
-      
+
 
       {/* Footer */}
       <Footer />
-      
+
 
       <style jsx>{`
         /* General Styles */

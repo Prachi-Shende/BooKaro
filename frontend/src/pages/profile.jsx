@@ -3,9 +3,49 @@ import Header from '../components/header';
 import Footer from '../components/footer';
 import { Camera, Edit, LogOut, ChevronRight, Bell, ShoppingBag, MessageSquare, Heart, Star, BookOpen, HelpCircle, User } from 'lucide-react';
 import './profile.css';
+import { auth } from '../firebase/auth';
+ // adjust the path to your firebase config
+import { onAuthStateChanged } from 'firebase/auth';
+import { useEffect } from 'react';
+import { getFirestore, doc, updateDoc,collection, getDocs} from 'firebase/firestore';
 
 const MyProfile = () => {
   const fileInputRef = useRef(null);
+  const db = getFirestore(); 
+
+  useEffect(() => {
+    const fetchListings = async () => {
+      try {
+        const booksRef = collection(db, 'books'); // Reference to the "books" collection
+        const querySnapshot = await getDocs(booksRef); // Fetch all documents from the collection
+        const fetchedBooks = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data() // Spread the data from Firestore
+        }));
+        setListings(fetchedBooks); // Store fetched books in the listings state
+      } catch (error) {
+        console.error('Error fetching books:', error);
+      }
+    };
+  
+    fetchListings();
+  }, []); // Empty dependency array ensures this runs once when the component mounts  
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        setUser(prevUser => ({
+          ...prevUser,
+          uid: currentUser.uid, // Ensure 'uid' is set properly
+          name: currentUser.displayName || currentUser.email.split('@')[0], // Use email prefix if no name
+          email: currentUser.email,
+          profilePic: currentUser.photoURL || `https://api.dicebear.com/7.x/initials/svg?seed=${currentUser.email}`,
+        }));
+      }
+    });
+  
+    return () => unsubscribe();
+  }, []);  
   
   // State for user information
   const [user, setUser] = useState({
@@ -25,11 +65,13 @@ const MyProfile = () => {
   // Profile edit state
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
-    name: user.name,
-    email: user.email,
-    phone: user.phone
+    name: user.name || '',
+    email: user.email || '',
+    phone: user.phone || '',
+    role: user.role || 'buyer', // Make sure 'buyer' is the default if user.role is undefined
   });
-
+  
+  
   // State for active tab
   const [activeTab, setActiveTab] = useState('profile');
 
@@ -113,15 +155,52 @@ const MyProfile = () => {
   // Handle edit form changes
   const handleEditFormChange = (e) => {
     const { name, value } = e.target;
-    setEditForm({ ...editForm, [name]: value });
-  };
+    setEditForm((prevForm) => ({ ...prevForm, [name]: value }));
+  };  
 
   // Save profile changes
-  const saveProfileChanges = () => {
-    setUser({ ...user, name: editForm.name, email: editForm.email, phone: editForm.phone });
-    setIsEditing(false);
-  };
-
+  const saveProfileChanges = async () => {
+    try {
+      // Log the role before proceeding
+      console.log('Saving profile with role:', editForm.role);
+  
+      // Ensure that the role is a valid value
+      if (!editForm.role || !['buyer', 'seller', 'both'].includes(editForm.role)) {
+        alert("Please select a valid role.");
+        return;
+      }
+  
+      const userRef = doc(db, "users", user.uid);
+      const updatedData = {
+        name: editForm.name,
+        email: editForm.email,
+        phone: editForm.phone,
+        role: editForm.role,  // Save the selected role
+      };
+      console.log("User UID:", user.uid);
+      console.log("Data being updated:", updatedData);
+  
+      // Assuming 'users' is the collection and user.uid is the document ID
+      // Update Firestore with new profile information
+      await updateDoc(userRef, updatedData);
+  
+      // Optionally, update local state after successful save
+      setUser((prevUser) => ({
+        ...prevUser,
+        ...updatedData,
+      }));
+  
+      // Exit editing mode
+      setIsEditing(false);
+  
+      alert("Profile updated successfully!");
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      alert("Failed to update profile. Please try again.");
+    }
+  };  
+  
+  
   // Render tab content based on active tab
   const renderTabContent = () => {
     switch(activeTab) {
@@ -186,90 +265,127 @@ const MyProfile = () => {
               </div>
             ) : (
               <div className="edit-profile-form">
-                <div className="section-header">
-                  <h3>Edit Profile</h3>
-                  <div className="form-actions">
-                    <button className="cancel-btn" onClick={() => setIsEditing(false)}>Cancel</button>
-                    <button className="save-btn" onClick={saveProfileChanges}>Save Changes</button>
-                  </div>
-                </div>
-                <div className="info-card">
-                  <div className="form-group">
-                    <label htmlFor="name">Name</label>
-                    <input 
-                      type="text" 
-                      id="name"
-                      name="name"
-                      value={editForm.name}
-                      onChange={handleEditFormChange}
-                      className="form-input"
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="email">Email</label>
-                    <input 
-                      type="email" 
-                      id="email"
-                      name="email"
-                      value={editForm.email}
-                      onChange={handleEditFormChange}
-                      className="form-input"
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="phone">Phone</label>
-                    <input 
-                      type="text" 
-                      id="phone"
-                      name="phone"
-                      value={editForm.phone}
-                      onChange={handleEditFormChange}
-                      className="form-input"
-                    />
-                  </div>
-                </div>
-              </div>
+  <div className="section-header">
+    <h3>Edit Profile</h3>
+    <div className="form-actions">
+      <button className="cancel-btn" onClick={() => setIsEditing(false)}>Cancel</button>
+      <button className="save-btn" onClick={saveProfileChanges}>Save Changes</button>
+    </div>
+  </div>
+  <div className="info-card">
+    <div className="form-group">
+      <label htmlFor="name">Name</label>
+      <input 
+        type="text" 
+        id="name"
+        name="name"
+        value={editForm.name || user.name}
+        onChange={handleEditFormChange}
+        className="form-input"
+      />
+
+    
+    </div>
+    <div className="form-group">
+      <label htmlFor="email">Email</label>
+      <input 
+        type="email" 
+        id="email"
+        name="email"
+        value={editForm.email || user.email}
+        onChange={handleEditFormChange}
+        className="form-input"
+      />
+    </div>
+    <div className="form-group">
+      <label htmlFor="phone">Phone</label>
+      <input 
+        type="text" 
+        id="phone"
+        name="phone"
+        value={editForm.phone || user.phone}
+        onChange={handleEditFormChange}
+        className="form-input"
+      />
+    </div>
+    <div className="form-group">
+      <label htmlFor="role">User Role</label>
+      <select
+  id="role"
+  name="role"
+  value={editForm.role || 'buyer'} // Ensure role has a valid default
+  onChange={handleEditFormChange}
+  className="form-input"
+>
+  <option value="buyer">Buyer</option>
+  <option value="seller">Seller</option>
+  <option value="both">Both</option>
+</select>
+    </div>
+  </div>
+</div>
+
             )}
           </div>
         );
       
-      case 'listings':
-        return (
-          <div className="listings-section">
-            <div className="section-header">
-              <h3>My Listings</h3>
-              <button className="add-new-btn">+ Add New Listing</button>
-            </div>
-            
-            {listings.length > 0 ? (
-              <div className="listings-grid">
-                {listings.map(listing => (
-                  <div key={listing.id} className="listing-card">
-                    <div className="listing-image">
-                      <img src={listing.image} alt={listing.title} />
-                      <span className={`listing-status ${listing.status.toLowerCase()}`}>{listing.status}</span>
-                    </div>
-                    <div className="listing-details">
-                      <h4>{listing.title}</h4>
-                      <p className="listing-author">by {listing.author}</p>
-                      <p className="listing-price">{listing.price}</p>
-                      <div className="listing-actions">
-                        <button className="edit-btn">Edit</button>
-                        <button className="delete-btn" onClick={() => deleteListing(listing.id)}>Delete</button>
+        case 'listings':
+          return (
+            <div className="listings-section">
+              <div className="section-header">
+                <h3>My Listings</h3>
+              </div>
+        
+              {listings.length > 0 ? (
+                <div className="listings-grid">
+                  {listings.map((listing) => (
+                    <div key={listing.id} className="listing-card">
+                      <div className="listing-image">
+                        {/* Check if image URL is available, otherwise use text placeholder */}
+                        {listing.image ? (
+                          <img src={listing.image} alt={listing.bookTitle} />
+                        ) : (
+                          <div className="book-cover-placeholder">
+                            <span>
+                              {/* Display initials based on the book title */}
+                              {listing.bookTitle
+                                ? listing.bookTitle
+                                    .split(' ')
+                                    .map((word) => word[0])
+                                    .join('')
+                                : 'No Title'}
+                            </span>
+                          </div>
+                        )}
+                        <span className={`listing-status ${listing.condition.toLowerCase()}`}>
+                          {listing.condition}
+                        </span>
+                      </div>
+                      <div className="listing-details">
+                        <h4>{listing.bookTitle}</h4>
+                        <p className="listing-author">by {listing.author}</p>
+                        <p className="listing-price">₹{listing.price}</p>
+                        <div className="listing-actions">
+                          <button className="edit-btn">Edit</button>
+                          <button className="delete-btn" onClick={() => deleteListing(listing.id)}>
+                            Delete
+                          </button>
+                        </div>
                       </div>
                     </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="empty-state">
+                  <div className="empty-icon">
+                    <BookOpen size={48} />
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="empty-state">
-                <div className="empty-icon"><BookOpen size={48} /></div>
-                <p>You don't have any listings yet.</p>
-                <button className="add-new-btn">Create Your First Listing</button>
-              </div>
-            )}
-          </div>
-        );
+                  <p>You don't have any listings yet.</p>
+                  <button className="add-new-btn">Create Your First Listing</button>
+                </div>
+              )}
+            </div>
+          );             
       
       case 'purchases':
         return (

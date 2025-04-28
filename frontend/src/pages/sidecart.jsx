@@ -1,31 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Trash2, ShoppingBag, ChevronRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { getFirestore, doc, getDoc, setDoc, arrayUnion } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
 import './SideCart.css';
 
 const SideCart = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
-  const [cartItems, setCartItems] = useState([
-    {
-      id: 1,
-      title: "Engineering Mathematics Vol 1",
-      author: "H.K. Dass",
-      price: 450,
-      quantity: 1,
-      coverInitials: "EM"
-    },
-    {
-      id: 3,
-      title: "Computer Networks",
-      author: "Andrew S. Tanenbaum",
-      price: 650,
-      quantity: 1,
-      coverInitials: "CN"
-    }
-  ]);
-  
+  const [cartItems, setCartItems] = useState([]);
   const cartRef = useRef(null);
-  
+
   // Close cart when clicking outside
   useEffect(() => {
     function handleClickOutside(event) {
@@ -33,13 +17,13 @@ const SideCart = ({ isOpen, onClose }) => {
         onClose();
       }
     }
-    
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isOpen, onClose]);
-  
+
   // Prevent body scrolling when cart is open
   useEffect(() => {
     if (isOpen) {
@@ -47,35 +31,61 @@ const SideCart = ({ isOpen, onClose }) => {
     } else {
       document.body.style.overflow = 'unset';
     }
-    
+
     return () => {
       document.body.style.overflow = 'unset';
     };
   }, [isOpen]);
-  
+
+  // Fetch cart items from Firestore
+  useEffect(() => {
+    const fetchCartItems = async () => {
+      const auth = getAuth();
+      const user = auth.currentUser;
+
+      if (user) {
+        const db = getFirestore();
+        const cartRef = doc(db, 'carts', user.uid);
+        const cartDoc = await getDoc(cartRef);
+
+        if (cartDoc.exists()) {
+          const data = cartDoc.data();
+          const itemsWithDefaultQuantity = data.items.map(item => ({
+            ...item,
+            quantity: item.quantity || 1, // Set quantity to 1 if it's not already set
+          }));
+
+          setCartItems(itemsWithDefaultQuantity);
+        }
+      }
+    };
+
+    fetchCartItems();
+  }, []);
+
   // Calculate total price
   const totalPrice = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-  
+
   // Update quantity
   const updateQuantity = (id, newQuantity) => {
     if (newQuantity < 1) return;
-    
+
     setCartItems(cartItems.map(item => 
-      item.id === id ? {...item, quantity: newQuantity} : item
+      item.id === id ? { ...item, quantity: newQuantity } : item
     ));
   };
-  
+
   // Remove item from cart
   const removeItem = (id) => {
     setCartItems(cartItems.filter(item => item.id !== id));
   };
-  
+
   // Handle view cart click
   const handleViewCart = () => {
     navigate('/view-cart');
     onClose();
   };
-  
+
   return (
     <div className={`side-cart-overlay ${isOpen ? 'active' : ''}`}>
       <div 
@@ -97,7 +107,7 @@ const SideCart = ({ isOpen, onClose }) => {
             <X size={24} />
           </button>
         </div>
-        
+
         <div className="side-cart-content">
           {cartItems.length === 0 ? (
             <div className="empty-cart">
@@ -120,10 +130,10 @@ const SideCart = ({ isOpen, onClose }) => {
                       </div>
                     </div>
                     <div className="cart-item-details">
-                      <h3 className="cart-item-title">{item.title}</h3>
+                      <h3 className="cart-item-title">{item.bookTitle}</h3>
                       <p className="cart-item-author">by {item.author}</p>
                       <p className="cart-item-price">₹{item.price}.00</p>
-                      
+
                       <div className="cart-item-actions">
                         <div className="quantity-control">
                           <button 
@@ -143,7 +153,7 @@ const SideCart = ({ isOpen, onClose }) => {
                             +
                           </button>
                         </div>
-                        
+
                         <button 
                           className="remove-item-btn"
                           onClick={() => removeItem(item.id)}
@@ -156,7 +166,7 @@ const SideCart = ({ isOpen, onClose }) => {
                   </li>
                 ))}
               </ul>
-              
+
               <div className="cart-summary">
                 <div className="cart-totals">
                   <div className="cart-total-row">
@@ -172,7 +182,7 @@ const SideCart = ({ isOpen, onClose }) => {
                     <span>₹{totalPrice + 50}.00</span>
                   </div>
                 </div>
-                
+
                 <div className="cart-buttons">
                   <button className="view-cart-btn" onClick={handleViewCart}>
                     View Cart

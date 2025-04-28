@@ -20,6 +20,7 @@ function App() {
         <Route path="/resources" element={<Resources />} />
         <Route path="/contact" element={<ConnectWithUs />} />
         <Route path="/messages" element={<Messages />} />
+        <Route path="/messages/:conversationId" element={<Messages />} />
         <Route path="/search" element={<Search />} />
         <Route path="/view-cart" element={<ViewCart />} /> 
         <Route path="/sell" element={<SellBooksPage />} />

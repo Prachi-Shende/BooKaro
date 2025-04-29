@@ -66,5 +66,9 @@ cd BooKaro
 # Install dependencies
 npm install
 
+npm install papaparse
+
 # Start the development server
 npm start
+
+

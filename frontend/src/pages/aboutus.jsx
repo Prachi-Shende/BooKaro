@@ -6,8 +6,9 @@ import Header from '../components/header';
 import Footer from '../components/footer';
 import { FaGithub, FaLinkedin } from 'react-icons/fa';
 import dikshaImage from './diksha.jpg';
-import prachiImage from './prachi.jpg'
-import mahimaImg from './mahima.jpeg'// Updated image paths to reference images in the same folder as aboutus.jsx
+import ShreyaImage from './Shreya.jpg';
+import prachiImage from './prachi.jpg';
+import mahimaImg from './mahima.jpeg';// Updated image paths to reference images in the same folder as aboutus.jsx
 const teamMembers = [
   {
     name: 'Prachi Shende',
@@ -21,7 +22,7 @@ const teamMembers = [
     name: 'Shreya Rajeev',
     role: 'Backend Developer',
     bio: 'Works tirelessly to provide innovative solutions for VJTI students.',
-    imgUrl: './priya.jpg', // Updated path
+    imgUrl: ShreyaImage, // Updated path
     github: 'https://github.com/ShreyaR2',
     linkedin: 'https://www.linkedin.com/in/shreya-r-144922297/'
   },

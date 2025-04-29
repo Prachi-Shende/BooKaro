@@ -621,6 +621,7 @@ const BooKaroHomepage = () => {
   font-size: 30px;
   font-weight: 700;
   margin-bottom: 16px;
+  color: white;
 }
 
 @media (min-width: 640px) {

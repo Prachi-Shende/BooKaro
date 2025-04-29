@@ -578,6 +578,131 @@ const SellBooksPage = () => {
 
       {/* Footer */}
       <Footer />
+      <style jsx>{`
+        /* Footer */
+        .footer {
+          background-color: #1f2937;
+          color: white;
+          padding: 48px 16px 24px;
+        }
+        
+        .footer-content {
+          max-width: 72rem;
+          margin: 0 auto;
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 32px;
+          margin-bottom: 32px;
+        }
+        
+        @media (min-width: 640px) {
+          .footer-content {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+        
+        @media (min-width: 1024px) {
+          .footer-content {
+            grid-template-columns: repeat(4, 1fr);
+          }
+        }
+        
+        .footer-logo {
+          display: flex;
+          align-items: center;
+          margin-bottom: 16px;
+        }
+        
+        .footer-logo-circle {
+          height: 32px;
+          width: 32px;
+          border-radius: 50%;
+          background-color: rgb(207, 126, 82);
+          margin-right: 8px;
+        }
+        
+        .footer-logo-text {
+          font-size: 20px;
+          font-weight: 700;
+        }
+        
+        .footer-description {
+          color: #d1d5db;
+          font-size: 14px;
+        }
+        
+        .footer-heading {
+          font-size: 16px;
+          font-weight: 600;
+          margin-bottom: 16px;
+        }
+        
+        .footer-links {
+          list-style-type: none;
+        }
+        
+        .footer-link {
+          display: block;
+          color: #d1d5db;
+          text-decoration: none;
+          margin-bottom: 8px;
+          transition: color 0.2s;
+        }
+        
+        .footer-link:hover {
+          color: rgb(207, 126, 82);
+        }
+        
+        .social-links {
+          display: flex;
+          margin-bottom: 16px;
+        }
+        
+        .social-link {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 32px;
+          height: 32px;
+          background-color: rgba(255, 255, 255, 0.1);
+          border-radius: 50%;
+          margin-right: 12px;
+          color: white;
+          transition: background-color 0.2s;
+        }
+        
+        .social-link:hover {
+          background-color: rgb(207, 126, 82);
+          color: #1f2937;
+        }
+        
+        .social-icon {
+          height: 16px;
+          width: 16px;
+        }
+        
+        .contact-info-title {
+          font-size: 14px;
+          font-weight: 600;
+          margin-bottom: 8px;
+        }
+        
+        .contact-info-item {
+          color: #d1d5db;
+          font-size: 14px;
+          margin-bottom: 4px;
+        }
+        
+        .copyright {
+          max-width: 72rem;
+          margin: 0 auto;
+          text-align: center;
+          padding-top: 24px;
+          border-top: 1px solid rgba(255, 255, 255, 0.1);
+          color: #9ca3af;
+          font-size: 14px;
+        }
+      `}</style>
 
 
       <style jsx>{`
@@ -653,6 +778,7 @@ const SellBooksPage = () => {
           font-size: 36px;
           font-weight: 700;
           margin-bottom: 16px;
+          color : white ;
         }
 
         .sell-hero-description {

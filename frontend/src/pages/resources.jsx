@@ -1,9 +1,24 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './resources.css';
 import Header from '../components/header';
 import Footer from '../components/footer';
 
 function Resources() {
+  const [activeTab, setActiveTab] = useState('general');
+  const [expandedFaq, setExpandedFaq] = useState(null);
+
+  const toggleFaq = (itemIndex) => {
+    // If the clicked item is already expanded, close it
+    if (expandedFaq === itemIndex) {
+      setExpandedFaq(null);
+    } else {
+      // Otherwise, expand the clicked item and close others
+      setExpandedFaq(itemIndex);
+    }
+  };
+
+  // Clean up effect not needed anymore since we don't attach direct DOM listeners
+
   return (
     <div className="resources-container">
       {/* Header Component */}
@@ -12,7 +27,7 @@ function Resources() {
       {/* Explore Books Section */}
       <section className="explore-section">
         <div className="explore-content">
-          <h1 className="section-title2">Explore Books</h1>
+          <h1 className="blog-title">Explore Books</h1>
           <p className="section-description">
             Discover a wide selection of books for sale, rent, or exchange. Find your 
             favorite reads and connect with other VJTI students.
@@ -52,45 +67,203 @@ function Resources() {
       {/* FAQ Section */}
       <section className="faq-section">
         <h1 className="faq-main-title">Frequently Asked Questions</h1>
-        <h2 className="faq-subtitle">Frequently asked questions</h2>
         
         <div className="faq-tabs">
-          <button className="tab active">General</button>
-          <button className="tab">Setting up FAQs</button>
+          <button 
+            className={`tab ${activeTab === 'general' ? 'active' : ''}`} 
+            onClick={() => setActiveTab('general')}
+          >
+            General
+          </button>
+          <button 
+            className={`tab ${activeTab === 'setup' ? 'active' : ''}`} 
+            onClick={() => setActiveTab('setup')}
+          >
+            Setting up FAQs
+          </button>
         </div>
 
-        <div className="faq-items">
-          <div className="faq-item expanded">
-            <div className="faq-question">
-              <h3>What is an FAQ section?</h3>
-              <span className="expand-icon">^</span>
-            </div>
-            <div className="faq-answer">
-              <p>An FAQ section can be used to quickly answer common questions about your business like "Where do you ship to?", "What are your opening hours?", or "How can I book a service?".</p>
-              <div className="share-icons">
-                <button className="share-btn">f</button>
-                <button className="share-btn">t</button>
-                <button className="share-btn">in</button>
-                <button className="share-btn">🔗</button>
+        {/* General FAQs Content */}
+        <div className={`faq-content ${activeTab !== 'general' ? 'hidden' : ''}`} id="general-faqs">
+          <div className="faq-items">
+            {/* FAQ Item 1 */}
+            <div 
+              className={`faq-item ${expandedFaq === 'general-1' ? 'expanded' : ''}`}
+              onClick={() => toggleFaq('general-1')}
+            >
+              <div className="faq-question">
+                <h3>What is BooKaro?</h3>
+                <span className="expand-icon">{expandedFaq === 'general-1' ? '−' : '+'}</span>
+              </div>
+              <div className="faq-answer">
+                <p>BooKaro is a platform for VJTI students to buy, sell, and rent textbooks and other academic materials. It provides an easy way to get textbooks at affordable prices, whether they are new, used, or rented.</p>
+                <div className="share-icons">
+                  <button className="share-btn">
+                    <i className="fab fa-facebook-f"></i>
+                  </button>
+                  <button className="share-btn">
+                    <i className="fab fa-twitter"></i>
+                  </button>
+                  <button className="share-btn">
+                    <i className="fab fa-linkedin-in"></i>
+                  </button>
+                  <button className="share-btn">
+                    <i className="fas fa-link"></i>
+                  </button>
+                </div>
               </div>
             </div>
-            <div className="faq-divider"></div>
-          </div>
 
-          <div className="faq-item">
-            <div className="faq-question">
-              <h3>Why do FAQs matter?</h3>
-              <span className="expand-icon">v</span>
+            {/* FAQ Item 2 */}
+            <div 
+              className={`faq-item ${expandedFaq === 'general-2' ? 'expanded' : ''}`}
+              onClick={() => toggleFaq('general-2')}
+            >
+              <div className="faq-question">
+                <h3>How do I sell my textbooks on BooKaro?</h3>
+                <span className="expand-icon">{expandedFaq === 'general-2' ? '−' : '+'}</span>
+              </div>
+              <div className="faq-answer">
+                <p>To sell your textbooks on BooKaro, simply create an account, list your books with details like condition (new/second-hand), price, and images. Once your listing is approved, students can browse and purchase your textbooks.</p>
+              </div>
             </div>
-            <div className="faq-divider"></div>
-          </div>
 
-          <div className="faq-item">
-            <div className="faq-question">
-              <h3>Where can I add my FAQs?</h3>
-              <span className="expand-icon">v</span>
+            {/* FAQ Item 3 */}
+            <div 
+              className={`faq-item ${expandedFaq === 'general-3' ? 'expanded' : ''}`}
+              onClick={() => toggleFaq('general-3')}
+            >
+              <div className="faq-question">
+                <h3>How do I rent books from BooKaro?</h3>
+                <span className="expand-icon">{expandedFaq === 'general-3' ? '−' : '+'}</span>
+              </div>
+              <div className="faq-answer">
+                <p>Renting a book on BooKaro is simple. Just browse the available books, check their rental terms, and make your payment. The platform supports various rental periods, and you can choose based on your course needs.</p>
+              </div>
             </div>
-            <div className="faq-divider"></div>
+
+            {/* FAQ Item 4 */}
+            <div 
+              className={`faq-item ${expandedFaq === 'general-4' ? 'expanded' : ''}`}
+              onClick={() => toggleFaq('general-4')}
+            >
+              <div className="faq-question">
+                <h3>What payment options are available on BooKaro?</h3>
+                <span className="expand-icon">{expandedFaq === 'general-4' ? '−' : '+'}</span>
+              </div>
+              <div className="faq-answer">
+                <p>BooKaro supports multiple payment options, including credit/debit cards, UPI, and wallets. It also offers flexible installment options for rentals, making it easier for students to manage their payments.</p>
+              </div>
+            </div>
+
+            {/* FAQ Item 5 */}
+            <div 
+              className={`faq-item ${expandedFaq === 'general-5' ? 'expanded' : ''}`}
+              onClick={() => toggleFaq('general-5')}
+            >
+              <div className="faq-question">
+                <h3>How do I know if a book is available?</h3>
+                <span className="expand-icon">{expandedFaq === 'general-5' ? '−' : '+'}</span>
+              </div>
+              <div className="faq-answer">
+                <p>BooKaro offers real-time inventory updates. When you search for a book, the availability status is displayed. If a book is out of stock, you can choose to be notified when it becomes available again.</p>
+              </div>
+            </div>
+
+            {/* FAQ Item 6 */}
+            <div 
+              className={`faq-item ${expandedFaq === 'general-6' ? 'expanded' : ''}`}
+              onClick={() => toggleFaq('general-6')}
+            >
+              <div className="faq-question">
+                <h3>Is BooKaro only for VJTI students?</h3>
+                <span className="expand-icon">{expandedFaq === 'general-6' ? '−' : '+'}</span>
+              </div>
+              <div className="faq-answer">
+                <p>Yes, BooKaro is designed exclusively for VJTI students. We prioritize the needs of our college community to provide affordable textbooks and educational materials for the students.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Setting up FAQs Content */}
+        <div className={`faq-content ${activeTab !== 'setup' ? 'hidden' : ''}`} id="setup-faqs">
+          <div className="faq-items">
+            {/* Setup FAQ Item 1 */}
+            <div 
+              className={`faq-item ${expandedFaq === 'setup-1' ? 'expanded' : ''}`}
+              onClick={() => toggleFaq('setup-1')}
+            >
+              <div className="faq-question">
+                <h3>How do I add a new question & answer?</h3>
+                <span className="expand-icon">{expandedFaq === 'setup-1' ? '−' : '+'}</span>
+              </div>
+              <div className="faq-answer">
+                <p>To add a new FAQ follow these steps:</p>
+                <ol>
+                  <li>Manage FAQs from your site dashboard or in the Editor</li>
+                  <li>Add a new question & answer</li>
+                  <li>Assign your FAQ to a category</li>
+                  <li>Save and publish.</li>
+                </ol>
+                <p>You can always come back and edit your FAQs.</p>
+              </div>
+            </div>
+
+            {/* Setup FAQ Item 2 */}
+            <div 
+              className={`faq-item ${expandedFaq === 'setup-2' ? 'expanded' : ''}`}
+              onClick={() => toggleFaq('setup-2')}
+            >
+              <div className="faq-question">
+                <h3>Can I insert an image, video, or GIF in my FAQ?</h3>
+                <span className="expand-icon">{expandedFaq === 'setup-2' ? '−' : '+'}</span>
+              </div>
+              <div className="faq-answer">
+                <p>Yes, you can add media to your FAQs to make them more engaging and informative. When editing your FAQ, use the media toolbar to upload or insert images, videos, or GIFs to illustrate your answer.</p>
+              </div>
+            </div>
+
+            {/* Setup FAQ Item 3 */}
+            <div 
+              className={`faq-item ${expandedFaq === 'setup-3' ? 'expanded' : ''}`}
+              onClick={() => toggleFaq('setup-3')}
+            >
+              <div className="faq-question">
+                <h3>How do I edit or remove the 'Frequently Asked Questions' title?</h3>
+                <span className="expand-icon">{expandedFaq === 'setup-3' ? '−' : '+'}</span>
+              </div>
+              <div className="faq-answer">
+                <p>To edit or remove the FAQ section title:</p>
+                <ol>
+                  <li>Go to your site's Editor</li>
+                  <li>Navigate to the FAQ section</li>
+                  <li>Click on the title text to edit or delete it</li>
+                  <li>Save your changes</li>
+                </ol>
+              </div>
+            </div>
+
+            {/* Setup FAQ Item 4 */}
+            <div 
+              className={`faq-item ${expandedFaq === 'setup-4' ? 'expanded' : ''}`}
+              onClick={() => toggleFaq('setup-4')}
+            >
+              <div className="faq-question">
+                <h3>How do I organize FAQs into categories?</h3>
+                <span className="expand-icon">{expandedFaq === 'setup-4' ? '−' : '+'}</span>
+              </div>
+              <div className="faq-answer">
+                <p>You can organize your FAQs into categories for better user experience:</p>
+                <ol>
+                  <li>Go to the FAQ manager in your dashboard</li>
+                  <li>Create categories (e.g., General, Payments, Returns)</li>
+                  <li>Assign each FAQ to a specific category</li>
+                  <li>Arrange the order of categories and FAQs by dragging and dropping</li>
+                  <li>Save your changes</li>
+                </ol>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -125,7 +298,6 @@ function Resources() {
           </div>
 
           <div className="blog-card">
-            <div className="card-icon">🛒</div>
             <h2 className="blog-card-title">Student Success Stories</h2>
             <p className="blog-card-description">
               Share your feature information here to attract new clients. Provide a brief summary to help
@@ -135,7 +307,6 @@ function Resources() {
           </div>
 
           <div className="blog-card">
-            <div className="card-icon">%</div>
             <h2 className="blog-card-title">Author Interviews</h2>
             <p className="blog-card-description">
               Share your feature information here to attract new clients. Provide a brief summary to help
@@ -150,6 +321,203 @@ function Resources() {
       <Footer />
 
       <style jsx>{`
+        /* CSS styles remain unchanged */
+        .faq-section {
+          padding: 60px 20px;
+          max-width: 1000px;
+          margin: 0 auto;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        .faq-main-title {
+          font-size: 32px;
+          font-weight: 700;
+          text-align: center;
+          margin-bottom: 40px;
+          color: #333;
+        }
+
+        .faq-search {
+          display: flex;
+          margin: 0 auto 30px;
+          max-width: 600px;
+        }
+
+        .search-input {
+          flex: 1;
+          padding: 12px 16px;
+          font-size: 16px;
+          border: 1px solid #ddd;
+          border-radius: 4px 0 0 4px;
+          outline: none;
+        }
+
+        .search-button {
+          padding: 12px 24px;
+          background-color: rgb(207, 126, 82);
+          color: white;
+          font-weight: 600;
+          border: none;
+          border-radius: 0 4px 4px 0;
+          cursor: pointer;
+          transition: background-color 0.3s;
+        }
+
+        .search-button:hover {
+          background-color: rgba(207, 126, 82, 0.8);
+        }
+
+        .faq-tabs {
+          display: flex;
+          justify-content: center;
+          margin-bottom: 30px;
+          border-bottom: 1px solid #ddd;
+        }
+
+        .tab {
+          padding: 12px 24px;
+          font-size: 16px;
+          font-weight: 500;
+          background: none;
+          border: none;
+          cursor: pointer;
+          position: relative;
+          color: #666;
+          transition: color 0.3s;
+        }
+
+        .tab.active {
+          color: rgb(207, 126, 82);
+          font-weight: 600;
+        }
+
+        .tab.active::after {
+          content: '';
+          position: absolute;
+          bottom: -1px;
+          left: 0;
+          width: 100%;
+          height: 3px;
+          background-color: rgb(207, 126, 82);
+        }
+
+        .faq-content {
+          margin-top: 20px;
+        }
+
+        .faq-content.hidden {
+          display: none;
+        }
+
+        .faq-items {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+
+        .faq-item {
+          border: 1px solid #e5e7eb;
+          border-radius: 8px;
+          overflow: hidden;
+          background-color: #fff;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+          cursor: pointer;
+          transition: box-shadow 0.3s;
+        }
+
+        .faq-item:hover {
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .faq-question {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 20px;
+          background-color: #f9fafb;
+        }
+
+        .faq-question h3 {
+          margin: 0;
+          font-size: 18px;
+          font-weight: 600;
+          color: #111827;
+        }
+
+        .expand-icon {
+          font-size: 24px;
+          color: rgb(207, 126, 82);
+          font-weight: 300;
+        }
+
+        .faq-answer {
+          padding: 0 20px;
+          max-height: 0;
+          overflow: hidden;
+          transition: max-height 0.3s ease-out, padding 0.3s ease;
+        }
+
+        .faq-item.expanded .faq-answer {
+          padding: 20px;
+          max-height: 500px;
+          transition: max-height 0.5s ease-in, padding 0.3s ease;
+        }
+
+        .faq-answer p {
+          margin: 0 0 16px;
+          color: #4b5563;
+          line-height: 1.6;
+        }
+
+        .faq-answer ol {
+          margin: 0 0 16px 20px;
+          color: #4b5563;
+          line-height: 1.6;
+        }
+
+        .faq-answer li {
+          margin-bottom: 8px;
+        }
+
+        .share-icons {
+          display: flex;
+          gap: 12px;
+          margin-top: 16px;
+        }
+
+        .share-btn {
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background-color: #f3f4f6;
+          border: none;
+          color: #4b5563;
+          cursor: pointer;
+          transition: background-color 0.3s;
+        }
+
+        .share-btn:hover {
+          background-color: rgb(207, 126, 82);
+          color: white;
+        }
+
+        @media (max-width: 768px) {
+          .faq-main-title {
+            font-size: 28px;
+          }
+          
+          .faq-question h3 {
+            font-size: 16px;
+          }
+          
+          .tab {
+            padding: 10px 16px;
+            font-size: 14px;
+          }
+        }
         /* General Styles */
         * {
           box-sizing: border-box;

@@ -49,6 +49,9 @@
   @media (min-width: 768px) {
     .section-title {
       font-size: 48px;
+      font-weight: bold;
+    
+
     }
   }
   
